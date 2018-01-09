@@ -11,5 +11,12 @@ public class App
     public static void main( String[] args )
     {
         System.out.println( "微服务工业云平台..." );
+        ImsaServer imsaServer = new ImsaServer();
+        try {
+			imsaServer.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }
