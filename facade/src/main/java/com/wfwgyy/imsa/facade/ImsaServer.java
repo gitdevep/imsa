@@ -12,6 +12,9 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
  * 整个系统入口，将监听所有外部系统发送的请求，将请求转化为系统消息，并发布到消息总线上去。同时接收消息总线消息，如果是HTML消息
  * 发送消息，则将该消息发送给调用者。
@@ -29,7 +32,7 @@ public class ImsaServer {
         serverSocketChannel.configureBlocking(false);  
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);  
         serverSocketChannel.socket().setReuseAddress(true);  
-        serverSocketChannel.socket().bind(new InetSocketAddress(8084));  
+        serverSocketChannel.socket().bind(new InetSocketAddress(8088));  
         while(true){  
             while (selector.select() > 0) {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys() .iterator();  
@@ -88,7 +91,15 @@ public class ImsaServer {
 	            req.append(s + "\r\n");
 	            s = b.readLine();  
 	        }  
-	        b.close();                        
+	        b.close(); 
+	        JSONObject msgObj = new JSONObject();
+	        msgObj.put("msg_id", 1L);
+	        msgObj.put("msg_type", 102);
+	        msgObj.put("msg_version", 1);
+	        msgObj.put("msg_data", req);
+	        JSONArray msgUrls = new JSONArray();
+	        msgObj.put("msg_url", msgUrls);
+	        System.out.println("msg:" + msgObj.toString() + "!");
 	        channel.register(selector, SelectionKey.OP_WRITE);
 	        // 发送消息
 		} catch (IOException e) {
