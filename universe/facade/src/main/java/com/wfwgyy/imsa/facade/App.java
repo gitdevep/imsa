@@ -11,7 +11,7 @@ public class App
     public static void main( String[] args )
     {
     	System.out.println( "微服务工业云平台..." );
-    	int iDebug = 1;
+    	int iDebug = 0;
     	if (1 == iDebug) {
     		test();
     		return ;

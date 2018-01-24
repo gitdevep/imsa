@@ -15,7 +15,9 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.wfwgyy.imsa.common.AppConsts;
 import com.wfwgyy.imsa.common.jedis.JedisEngine;
+import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
 
 /**
  * 整个系统入口，将监听所有外部系统发送的请求，将请求转化为系统消息，并发布到消息总线上去。同时接收消息总线消息，如果是HTML消息
@@ -24,6 +26,8 @@ import com.wfwgyy.imsa.common.jedis.JedisEngine;
  *
  */
 public class ImsaServer {
+	private short port = 8088; // 服务器监听端口
+	
 	/**
 	 * 程序总入口，启动Imsa服务器
 	 * @throws Exception
@@ -34,7 +38,7 @@ public class ImsaServer {
         serverSocketChannel.configureBlocking(false);  
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);  
         serverSocketChannel.socket().setReuseAddress(true);  
-        serverSocketChannel.socket().bind(new InetSocketAddress(8088));  
+        serverSocketChannel.socket().bind(new InetSocketAddress(port));  
         while(true){  
             while (selector.select() > 0) {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys() .iterator();  
@@ -94,15 +98,9 @@ public class ImsaServer {
 	            s = b.readLine();  
 	        }  
 	        b.close(); 
-	        JSONObject msgObj = new JSONObject();
-	        long msgId = JedisEngine.getKeyUniqueId("msg_id");
-	        msgObj.put("msg_id", msgId);
-	        msgObj.put("msg_type", 102);
-	        msgObj.put("msg_version", 1);
-	        msgObj.put("msg_data", req);
-	        JSONArray msgUrls = new JSONArray();
-	        msgObj.put("msg_url", msgUrls);
-	        System.out.println("msg:" + msgObj.toString() + "!");
+	        String[] urls = null;
+	        String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, req.toString(), null);
+	        System.out.println("v0.0.1 msg:" + msgStr + "!");
 	        channel.register(selector, SelectionKey.OP_WRITE);
 	        // 发送消息
 		} catch (IOException e) {
