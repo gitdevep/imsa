@@ -13,6 +13,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
 import com.wfwgyy.imsa.common.AppConsts;
+import com.wfwgyy.imsa.common.Turple2;
 import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
 
 /**
@@ -21,32 +22,37 @@ import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
  * @author 闫涛 2018.01.25 v0.0.1
  *
  */
-public class NioTcpServer {
-private short port = 8088; // 服务器监听端口
+public abstract class NioTcpServer {
+	protected abstract void processRequest(SelectionKey key, Selector selector);
+	protected abstract void processResponse(SelectionKey key, Selector selector);
 	
 	/**
 	 * 程序总入口，启动Imsa服务器
 	 * @throws Exception
 	 */
-	public void start() throws Exception {  
+	public void start(short port) throws Exception {  
         Selector selector = Selector.open();  
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();  
         serverSocketChannel.configureBlocking(false);  
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);  
         serverSocketChannel.socket().setReuseAddress(true);  
         serverSocketChannel.socket().bind(new InetSocketAddress(port));  
-        while(true){  
+        System.out.println("listen on port=" + port + "!");
+        while(true){
             while (selector.select() > 0) {
-                Iterator<SelectionKey> selectedKeys = selector.selectedKeys() .iterator();  
-                while (selectedKeys.hasNext()) {  
+                Iterator<SelectionKey> selectedKeys = selector.selectedKeys() .iterator();
+                while (selectedKeys.hasNext()) {
                     SelectionKey key = selectedKeys.next();  
                     if (key.isAcceptable()) {
                     	acceptConnection(key, selector);
-                    } else if (key.isReadable()) {  
-                        readRequest(key, selector);
+                    } else if (key.isReadable()) {
+                        //readRequest(key, selector);
+                    	processRequest(key, selector);
                     } else if (key.isWritable()) {
-                        sendResponse(key, prepareTestResponse());
-                    }  
+                        //sendResponse(key, prepareTestResponse());
+                    	processResponse(key, selector);
+                    }
+                    selectedKeys.remove();
                 }  
             }  
         }
@@ -57,8 +63,8 @@ private short port = 8088; // 服务器监听端口
 	 * @param key
 	 * @param selector
 	 */
-	private void acceptConnection(SelectionKey key, Selector selector) {
-        ServerSocketChannel ssc = (ServerSocketChannel) key.channel();  
+	protected void acceptConnection(SelectionKey key, Selector selector) {
+        ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
         SocketChannel channel = null;
 		try {
 			channel = ssc.accept();
@@ -76,15 +82,17 @@ private short port = 8088; // 服务器监听端口
 	 * 读取消息内容，并向消息总线plato发送消息
 	 * @param key
 	 * @param selector
+	 * @return 二元元组，a代表请求文本内容，b为二进制对象URL数组
 	 */
-	private void readRequest(SelectionKey key, Selector selector) {
+	protected Turple2<String, String[]> readRequest(SelectionKey key, Selector selector) {
 		SocketChannel channel = (SocketChannel) key.channel();  
+		Turple2<String, String[]> rst = new Turple2<String, String[]>("", null);
         try {
 			channel.configureBlocking(false);
 	        String receive = receive(channel);
 	        // 如果没有接收到内容，就直接返回
 	        if (receive.equals("")) {
-	        	return ;
+	        	return rst;
 	        }
 	        BufferedReader b = new BufferedReader(new StringReader(receive));  
 	        String s = b.readLine();  
@@ -95,14 +103,13 @@ private short port = 8088; // 服务器监听端口
 	        }  
 	        b.close(); 
 	        String[] urls = null;
-	        String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, req.toString(), null);
-	        System.out.println("v0.0.1 msg:" + msgStr + "!");
-	        channel.register(selector, SelectionKey.OP_WRITE);
-	        // 发送消息
+	        channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+	        rst = new Turple2<String, String[]>(req.toString(), urls);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        return rst;
 	}
 	
 	/**
@@ -110,7 +117,7 @@ private short port = 8088; // 服务器监听端口
 	 * @param key
 	 * @param resp
 	 */
-	private void sendResponse(SelectionKey key, String resp) {
+	protected void sendResponse(SelectionKey key, Selector selector, String resp) {
 		SocketChannel channel = (SocketChannel) key.channel(); 
         ByteBuffer buffer = ByteBuffer.allocate(1024);  
           
@@ -119,8 +126,8 @@ private short port = 8088; // 服务器监听端口
         buffer.flip();  
         try {
 			channel.write(buffer);
-	        channel.shutdownInput();  
-	        channel.close();
+	        //channel.shutdownInput();  
+	        //channel.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -151,32 +158,5 @@ private short port = 8088; // 服务器监听端口
         }
   
         return new String(bytes);  
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * 临时方法，产生向客户端发送的响应
-     * @return
-     */
-    private String prepareTestResponse() {
-        String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.1...微服务工业云（测试版本）<br />测试读入内容是否正确<br />Hello World!</body></html>";   
-        StringBuilder resp = new StringBuilder();
-        resp.append("HTTP/1.1 200 OK" + "\r\n");
-        resp.append("Server: Microsoft-IIS/5.0 " + "\r\n");
-        resp.append("Date: Thu,08 Mar 200707:17:51 GMT" + "\r\n");
-        resp.append("Connection: Keep-Alive" + "\r\n");
-        resp.append("Content-Length: " + hello.getBytes().length + "\r\n");
-        resp.append("Content-Type: text/html\r\n");
-        resp.append("\r\n" + hello);
-        return resp.toString();
     }
 }

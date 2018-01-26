@@ -10,7 +10,7 @@ public class JedisEngine {
 	private static int MAX_TOTAL = 100;
 	private static int MAX_IDLE = 10;
 	private static int MAX_WAIT_MILLIS = 90 * 1000;
-	private static String HOST = "10.1.6.201";
+	private static String HOST = "10.1.6.166";
 	private static short PORT = 6379;
 	private static String UNIQUE_ID_INIT_VAL = "1"; // 唯一标识数字的初始值
 	private static JedisPool pool;

@@ -16,6 +16,8 @@ public class AppConsts {
 	public final static int MT_MSG_V4 = 4;
 	public final static int MT_MSG_V5 = 5;
 	// 消息服务器相关配置
-	public final static String PLATO_HOST = "10.1.6.201";
-	public final static short PLATO_PORT = 8001;
+	public final static String PLATO_HOST = "10.1.6.166";
+	public final static short PLATO_PORT = 8089;
+	// 门户Facade相关
+	public final static short FACADE_PORT = 8088;
 }
