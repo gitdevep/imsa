@@ -11,12 +11,6 @@ public class App
     public static void main( String[] args )
     {
         System.out.println( "消息总体Plato启动..." );
-        PlatoServer platoServer = new PlatoServer();
-        try {
-			platoServer.start(AppConsts.PLATO_PORT);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        PlatoServer.start();
     }
 }

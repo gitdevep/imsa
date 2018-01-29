@@ -1,29 +1,20 @@
-package com.wfwgyy.imsa.plato;
+package com.wfwgyy.imsa.common.net;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-
-import org.json.JSONObject;
 
 import com.wfwgyy.imsa.common.AppConsts;
-import com.wfwgyy.imsa.common.Turple2;
-import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
-import com.wfwgyy.imsa.common.net.AioTcpServer;
-import com.wfwgyy.imsa.common.net.AioTcpServerThread;
-import com.wfwgyy.imsa.common.net.NioTcpServer;
 
-public class PlatoServer extends AioTcpServer {
+public class AioTcpServer implements RequestProcessor {
 	private static AioTcpServerThread aioTcpServerThread = null;
 	public volatile static long clientCount = 0;
 	
 	public static synchronized void start() {
-		System.out.println("消息服务器启动中...IMSA");
+		System.out.println("启动中...");
 		if (null != aioTcpServerThread) {
 			return ;
 		}
-		AioTcpServer server = new PlatoServer();
-		Thread thread = new Thread(new AioTcpServerThread(server::processRequest, AppConsts.PLATO_PORT));
+		AioTcpServer ats = new AioTcpServer();
+		Thread thread = new Thread(new AioTcpServerThread(ats::processRequest, AppConsts.PLATO_PORT));
 		thread.start();
 	}
 
@@ -48,7 +39,7 @@ public class PlatoServer extends AioTcpServer {
 	}
 	
 	public String prepareResponse() {
-        String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.1...微服务工业云消息总线Plato（测试版本）<br />测试读入内容是否正确<br />Hello World!</body></html>";   
+        String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.3...微服务工业云（测试版本）<br />测试读入内容是否正确<br />Hello World!</body></html>";   
         StringBuilder resp = new StringBuilder();
         resp.append("HTTP/1.1 200 OK" + "\r\n");
         resp.append("Server: Microsoft-IIS/5.0 " + "\r\n");
@@ -59,4 +50,5 @@ public class PlatoServer extends AioTcpServer {
         resp.append("\r\n" + hello);
         return resp.toString();
 	}
+
 }
