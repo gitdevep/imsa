@@ -15,8 +15,11 @@ public class AppConsts {
 	public final static int MT_MSG_V3 = 3;
 	public final static int MT_MSG_V4 = 4;
 	public final static int MT_MSG_V5 = 5;
+	// Redis服务器
+	public final static String REDIS_HOST = "192.168.223.38";
+	public final static short REDIS_PORT = 6379;
 	// 消息服务器相关配置
-	public final static String PLATO_HOST = "10.1.6.166";
+	public final static String PLATO_HOST = "192.168.223.38";
 	public final static short PLATO_PORT = 8089;
 	// 门户Facade相关
 	public final static short FACADE_PORT = 8088;

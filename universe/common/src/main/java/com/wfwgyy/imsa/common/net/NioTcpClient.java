@@ -23,7 +23,7 @@ public class NioTcpClient implements Runnable {
 	private static Queue<String> reqs = new ConcurrentLinkedQueue();
 	private Selector selector;
 	private SocketChannel socketChannel;
-	private String serverHost = "10.1.6.166";
+	private String serverHost = "192.168.223.38";
 	private short serverPort = 8089;
 	private volatile boolean stop;
 	

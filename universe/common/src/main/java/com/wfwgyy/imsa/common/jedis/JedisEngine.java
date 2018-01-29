@@ -2,6 +2,8 @@ package com.wfwgyy.imsa.common.jedis;
 
 import java.util.Optional;
 
+import com.wfwgyy.imsa.common.AppConsts;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -10,8 +12,6 @@ public class JedisEngine {
 	private static int MAX_TOTAL = 100;
 	private static int MAX_IDLE = 10;
 	private static int MAX_WAIT_MILLIS = 90 * 1000;
-	private static String HOST = "10.1.6.166";
-	private static short PORT = 6379;
 	private static String UNIQUE_ID_INIT_VAL = "1"; // 唯一标识数字的初始值
 	private static JedisPool pool;
 	
@@ -60,7 +60,7 @@ public class JedisEngine {
         // 设置空间连接
         config.setMaxIdle(MAX_IDLE);
         // 创建连接池
-        pool = new JedisPool(config, HOST, PORT);
+        pool = new JedisPool(config, AppConsts.REDIS_HOST, AppConsts.REDIS_PORT);
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public class JedisEngine {
 	 * @return 可能为空的字符串
 	 * @author 闫涛 2018.01.24 v0.0.1
 	 */
-	private static Optional<String> get(String key) {
+	public static Optional<String> get(String key) {
 		Jedis jedis = getJedis();
 		if (null == jedis) {
 			return Optional.empty();
@@ -117,7 +117,7 @@ public class JedisEngine {
 	 * @return 设置成功还是失败
 	 * @author 闫涛 2018.01.24 v0.0.1
 	 */
-	private static boolean set(String key, String val) {
+	public static boolean set(String key, String val) {
 		Jedis jedis = getJedis();
 		if (null == jedis) {
 			return false;

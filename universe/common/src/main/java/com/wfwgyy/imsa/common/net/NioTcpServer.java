@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import com.wfwgyy.imsa.common.AppConsts;
 import com.wfwgyy.imsa.common.Turple2;
+import com.wfwgyy.imsa.common.jedis.JedisEngine;
 import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
 
 /**
@@ -105,6 +106,11 @@ public abstract class NioTcpServer {
 	        String[] urls = null;
 	        channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 	        rst = new Turple2<String, String[]>(req.toString(), urls);
+	        
+	        System.out.println("#######:" + channel.hashCode() + "!");
+	        
+	        
+	        
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
