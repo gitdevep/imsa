@@ -35,6 +35,9 @@ public class PlatoServer extends NioTcpServer {
 	 */
 	protected void processRequest(SelectionKey key, Selector selector) {
 		Turple2<String, String[]> reqObj = super.readRequest(key, selector);
+		if (reqObj.v1.equals("")) {
+			return ;
+		}
 		String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, reqObj.v1, null);
 		System.out.println("" + System.currentTimeMillis() + ":" + msgStr + "!");
 		// 发送消息到消息总线

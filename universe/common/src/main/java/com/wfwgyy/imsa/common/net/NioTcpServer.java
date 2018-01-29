@@ -93,6 +93,7 @@ public abstract class NioTcpServer {
 	        String receive = receive(channel);
 	        // 如果没有接收到内容，就直接返回
 	        if (receive.equals("")) {
+	        	channel.register(selector, SelectionKey.OP_READ);
 	        	return rst;
 	        }
 	        BufferedReader b = new BufferedReader(new StringReader(receive));  
@@ -127,15 +128,23 @@ public abstract class NioTcpServer {
 		SocketChannel channel = (SocketChannel) key.channel(); 
         ByteBuffer buffer = ByteBuffer.allocate(1024);  
           
-        byte[] bytes = resp.toString().getBytes();  
+        byte[] bytes = resp.toString().getBytes();
         buffer.put(bytes);  
         buffer.flip();  
         try {
+        	if (channel.isConnected()) {
+        		System.out.println("Connected....");
+        	}
+        	if (channel.isOpen()) {
+        		System.out.println("Is opened......");
+        	}
+        	System.out.println("resp:" + resp + "!");
 			channel.write(buffer);
 	        //channel.shutdownInput();  
 	        //channel.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("############################################");
 			e.printStackTrace();
 		}    
 	}
