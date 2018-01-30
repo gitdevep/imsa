@@ -33,6 +33,11 @@ public class FacadeServer extends AioTcpServer {
 	private static AioTcpServerThread aioTcpServerThread = null;
 	public volatile static long clientCount = 0;
 	
+	/**
+	 * 启动门户服务器Facade实例线程，第一个参数为函数式接口，为本类的processRequest方法，用于处理请求
+	 * 并产生响应
+	 * @author 闫涛 2018.01.30 v0.0.1
+	 */
 	public static synchronized void start() {
 		System.out.println("门户服务器Facade启动中...IMSA");
 		if (null != aioTcpServerThread) {
@@ -43,6 +48,10 @@ public class FacadeServer extends AioTcpServer {
 		thread.start();
 	}
 
+	/**
+	 * 实现函数式接口，处理请求并产生响应
+	 * @author 闫涛 2018.01.30 v0.0.1
+	 */
 	@Override
 	public byte[] processRequest(byte[] req) {
 		// TODO Auto-generated method stub
@@ -63,6 +72,10 @@ public class FacadeServer extends AioTcpServer {
 		return calrResult.getBytes();
 	}
 	
+	/**
+	 * 用于测试目的的方法，产生一个简单的HTTP响应
+	 * @author 闫涛 2018.01.30 v0.0.1
+	 */
 	public String prepareResponse() {
         String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.1...微服务工业云门户服务器Facade<br />测试读入内容是否正确<br />Hello World!</body></html>";   
         StringBuilder resp = new StringBuilder();
