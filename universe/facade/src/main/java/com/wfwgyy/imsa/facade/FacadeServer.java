@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -19,7 +20,8 @@ import com.wfwgyy.imsa.common.AppConsts;
 import com.wfwgyy.imsa.common.Turple2;
 import com.wfwgyy.imsa.common.jedis.JedisEngine;
 import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
-import com.wfwgyy.imsa.common.net.NioTcpServer;
+import com.wfwgyy.imsa.common.net.AioTcpServer;
+import com.wfwgyy.imsa.common.net.AioTcpServerThread;
 
 /**
  * 整个系统入口，将监听所有外部系统发送的请求，将请求转化为系统消息，并发布到消息总线上去。同时接收消息总线消息，如果是HTML消息
@@ -27,61 +29,42 @@ import com.wfwgyy.imsa.common.net.NioTcpServer;
  * @author 闫涛 2018.01.09
  *
  */
-public class FacadeServer extends NioTcpServer {
-	/**
-	 * 程序总入口，启动Imsa服务器
-	 * @throws Exception
-	 */
-	public void start(short port) throws Exception {
-		super.start(port);
-    }
+public class FacadeServer extends AioTcpServer {
+	private static AioTcpServerThread aioTcpServerThread = null;
+	public volatile static long clientCount = 0;
 	
-	/**
-	 * 接受客户端的连接请求
-	 * @param key
-	 * @param selector
-	 */
-	protected void acceptConnection(SelectionKey key, Selector selector) {
-		super.acceptConnection(key, selector);
+	public static synchronized void start() {
+		System.out.println("门户服务器Facade启动中...IMSA");
+		if (null != aioTcpServerThread) {
+			return ;
+		}
+		AioTcpServer server = new FacadeServer();
+		Thread thread = new Thread(new AioTcpServerThread(server::processRequest, AppConsts.FACADE_PORT));
+		thread.start();
+	}
+
+	@Override
+	public byte[] processRequest(byte[] req) {
+		// TODO Auto-generated method stub
+		String expression = "";
+		try {
+			expression = new String(req, "UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}  
+        System.out.println("服务器收到消息: " + expression); 
+        String calrResult = null;
+        try{  
+            calrResult = prepareResponse();
+        }catch(Exception e){  
+            calrResult = "计算错误：" + e.getMessage();  
+        }  
+		return calrResult.getBytes();
 	}
 	
-	/**
-	 * 读取消息内容，并向消息总线plato发送消息
-	 * @param key
-	 * @param selector
-	 */
-	protected void processRequest(SelectionKey key, Selector selector) {
-		Turple2<String, String[]> reqObj = super.readRequest(key, selector);
-		String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, reqObj.v1, null);
-		// 发送消息到消息总线
-	}
-	
-	/**
-	 * 从消息总线接收到需要发送的HTTP响应，将响应发送给客户端
-	 * @param key
-	 * @param resp
-	 */
-	protected void processResponse(SelectionKey key, Selector selector) {
-		String resp = prepareTestResponse();
-		super.sendResponse(key, selector, resp);
-	}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * 临时方法，产生向客户端发送的响应
-     * @return
-     */
-    private String prepareTestResponse() {
-        String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.1...微服务工业云（测试版本）<br />测试读入内容是否正确<br />Hello World!</body></html>";   
+	public String prepareResponse() {
+        String hello = "<html><head><meta charset=\"utf-8\" /></head><body>IMSA v0.0.1...微服务工业云门户服务器Facade<br />测试读入内容是否正确<br />Hello World!</body></html>";   
         StringBuilder resp = new StringBuilder();
         resp.append("HTTP/1.1 200 OK" + "\r\n");
         resp.append("Server: Microsoft-IIS/5.0 " + "\r\n");
@@ -91,5 +74,5 @@ public class FacadeServer extends NioTcpServer {
         resp.append("Content-Type: text/html\r\n");
         resp.append("\r\n" + hello);
         return resp.toString();
-    }
+	}
 }

@@ -13,18 +13,12 @@ public class App
     public static void main( String[] args )
     {
     	System.out.println( "微服务工业云平台..." );
-    	int iDebug = 1;
+    	int iDebug = 0;
     	if (1 == iDebug) {
     		test();
     		return ;
     	}
-        FacadeServer imsaServer = new FacadeServer();
-        try {
-			imsaServer.start(AppConsts.FACADE_PORT);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        FacadeServer.start();
     }
     
     public static void test() {
