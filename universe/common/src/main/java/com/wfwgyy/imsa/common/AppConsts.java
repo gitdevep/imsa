@@ -24,5 +24,6 @@ public class AppConsts {
 	public final static String PLATO_HOST = "192.168.223.38";
 	public final static short PLATO_PORT = 8089;
 	// 门户Facade相关
+	public final static String FACADE_HOST = "192.168.223.38";
 	public final static short FACADE_PORT = 8088;
 }

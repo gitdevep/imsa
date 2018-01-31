@@ -12,6 +12,21 @@ import com.wfwgyy.imsa.common.jedis.JedisEngine;
  *
  */
 public class ImsaMsgEngine {
+	public static boolean publishImsaMsg(int msgTypeId, int msgVersion, long serviceId, String req, String[] urls) {
+		boolean rst = false;
+		String msgStr = createMsg(msgTypeId, msgVersion, serviceId, req, urls);
+		return rst;
+	}
+	
+	/**
+	 * 生成IMSA系统消息
+	 * @param msgTypeId
+	 * @param msgVersion
+	 * @param serviceId
+	 * @param req
+	 * @param urls
+	 * @return
+	 */
 	public static String createMsg(int msgTypeId, int msgVersion, long serviceId, String req, String[] urls) {
         JSONObject msgObj = new JSONObject();
         long msgId = JedisEngine.getKeyUniqueId(AppConsts.MSG_ID);

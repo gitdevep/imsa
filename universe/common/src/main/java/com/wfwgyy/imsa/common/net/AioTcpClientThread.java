@@ -29,7 +29,7 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
 		//创建CountDownLatch等待  
         latch = new CountDownLatch(1);  
         //发起异步连接操作，回调参数就是这个类本身，如果连接成功会回调completed方法  
-        clientChannel.connect(new InetSocketAddress(host, port), this, this);  
+        clientChannel.connect(new InetSocketAddress(host, port), this, this);
         try {  
             latch.await();  
         } catch (InterruptedException e1) {  
