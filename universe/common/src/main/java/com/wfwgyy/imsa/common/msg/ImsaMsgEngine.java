@@ -12,11 +12,12 @@ import com.wfwgyy.imsa.common.jedis.JedisEngine;
  *
  */
 public class ImsaMsgEngine {
-	public static String createMsg(int msgTypeId, int msgVersion, String req, String[] urls) {
+	public static String createMsg(int msgTypeId, int msgVersion, long serviceId, String req, String[] urls) {
         JSONObject msgObj = new JSONObject();
         long msgId = JedisEngine.getKeyUniqueId(AppConsts.MSG_ID);
         msgObj.put(AppConsts.MSG_ID, msgId);
         msgObj.put(AppConsts.MSG_TYPE, 102);
+        msgObj.put(AppConsts.SERVICE_ID, serviceId);
         msgObj.put(AppConsts.MSG_VERSION, 1);
         msgObj.put(AppConsts.MSG_DATA, req);
         JSONArray msgUrls = new JSONArray();

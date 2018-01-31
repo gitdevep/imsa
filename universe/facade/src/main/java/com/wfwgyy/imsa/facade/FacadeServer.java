@@ -62,7 +62,11 @@ public class FacadeServer extends AioTcpServer {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}  
-        System.out.println("服务器收到消息: " + expression); 
+        System.out.println("服务器收到消息: " + expression);
+        String[] urls = null;
+        String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, 
+        		AppConsts.SERVICE_ID_NONE, req.toString(), urls);
+        System.out.println("#####Msg:" + msgStr + "!");
         String calrResult = null;
         try{  
             calrResult = prepareResponse();

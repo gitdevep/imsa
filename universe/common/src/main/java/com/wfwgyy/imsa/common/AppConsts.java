@@ -5,6 +5,8 @@ public class AppConsts {
 	public final static String MSG_ID = "msg_id";
 	public final static String MSG_TYPE = "msg_type";
 	public final static String MSG_VERSION = "msg_version";
+	public final static long SERVICE_ID_NONE = 0;
+	public final static String SERVICE_ID = "service_id";
 	public final static String MSG_DATA = "msg_data";
 	public final static String MSG_URLS = "msg_urls";
 	// 消息类型
