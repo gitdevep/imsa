@@ -1,6 +1,7 @@
 package com.wfwgyy.imsa.common;
 
 import com.wfwgyy.imsa.common.net.AioTcpClient;
+import com.wfwgyy.imsa.common.net.AioTcpClientResponseThread;
 
 /**
  * Hello world!
@@ -30,5 +31,8 @@ public class App
         AioTcpClient.sendMsg("    第105步    ");
         AioTcpClient.sendMsg("    第106步    ");
         AioTcpClient.sendMsg("    第107步    ");
+        
+        Thread thd = new Thread(new AioTcpClientResponseThread());
+        thd.start();
     }
 }

@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 
 public class AioTcpClientReadHandler implements CompletionHandler<Integer, ByteBuffer> {
@@ -22,9 +23,11 @@ public class AioTcpClientReadHandler implements CompletionHandler<Integer, ByteB
         buffer.get(bytes);  
         String body;  
         System.out.println("AioTcpClientReadHandler.completed 2");
+        Queue<String> responseQueue = AioTcpClientThread.getResponseQueue();
         try {  
             body = new String(bytes,"UTF-8");  
-            System.out.println("客户端收到结果:"+ body);  
+            System.out.println("@@@@@客户端收到结果:"+ body);
+            responseQueue.add(body);
         } catch (UnsupportedEncodingException e) {  
         	System.out.println("AioTcpClientReadHandler.completed 4");
             e.printStackTrace();  

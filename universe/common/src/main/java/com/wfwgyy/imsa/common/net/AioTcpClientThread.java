@@ -31,6 +31,10 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
         }
     }
     
+    public static Queue<String> getResponseQueue() {
+    	return responseQueue;
+    }
+    
     public static void addRequestToQueue(String msg) {
     	requestQueue.add(msg);
     	latch.countDown();
