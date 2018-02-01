@@ -8,11 +8,9 @@ import java.util.concurrent.CountDownLatch;
 
 public class AioTcpClientWriteHandler implements CompletionHandler<Integer, ByteBuffer> {
 	private AsynchronousSocketChannel clientChannel;  
-    private CountDownLatch latch;
     
-    public AioTcpClientWriteHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch) {  
-        this.clientChannel = clientChannel;  
-        this.latch = latch;  
+    public AioTcpClientWriteHandler(AsynchronousSocketChannel clientChannel) {
+        this.clientChannel = clientChannel;
     }
     
 	@Override
@@ -20,11 +18,9 @@ public class AioTcpClientWriteHandler implements CompletionHandler<Integer, Byte
 		//完成全部数据的写入  
         if (buffer.hasRemaining()) {  
             clientChannel.write(buffer, buffer, this);  
-        }  
-        else {  
-            //读取数据  
-            ByteBuffer readBuffer = ByteBuffer.allocate(1024);  
-            clientChannel.read(readBuffer,readBuffer,new AioTcpClientReadHandler(clientChannel, latch));  
+        } else {
+        	AioTcpClientThread.latch.countDown();
+        	AioTcpClientThread.writeLatch.countDown();
         }
 	}
 
@@ -33,7 +29,8 @@ public class AioTcpClientWriteHandler implements CompletionHandler<Integer, Byte
 		System.err.println("数据发送失败...");  
         try {  
             clientChannel.close();  
-            latch.countDown();  
+            AioTcpClientThread.latch.countDown();
+        	AioTcpClientThread.writeLatch.countDown();
         } catch (IOException e) {  
         }
 	}

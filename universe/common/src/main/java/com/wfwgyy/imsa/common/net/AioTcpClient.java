@@ -14,8 +14,7 @@ public class AioTcpClient {
 	}
 	
 	public static boolean sendMsg(String msg) {
-		if(msg.equals("q")) return false;  
-        clientThread.sendMsg(msg);  
+		AioTcpClientThread.addRequestToQueue(msg);
         return true;  
 	}
 }

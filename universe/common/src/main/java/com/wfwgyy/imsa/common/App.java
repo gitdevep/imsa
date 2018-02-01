@@ -19,5 +19,16 @@ public class App
 			e.printStackTrace();
 		}
         AioTcpClient.sendMsg("我是一个程序员");
+        AioTcpClient.sendMsg("第一步");
+        AioTcpClient.sendMsg("第二步");
+        AioTcpClient.sendMsg("第三步\r\n");
+        AioTcpClient.sendMsg("    第100步    ");
+        AioTcpClient.sendMsg("    第101步    ");
+        AioTcpClient.sendMsg("    第102步    ");
+        AioTcpClient.sendMsg("    第103步    ");
+        AioTcpClient.sendMsg("    第104步    ");
+        AioTcpClient.sendMsg("    第105步    ");
+        AioTcpClient.sendMsg("    第106步    ");
+        AioTcpClient.sendMsg("    第107步    ");
     }
 }
