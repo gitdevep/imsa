@@ -3,11 +3,13 @@ package com.wfwgyy.imsa.common.net;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
 public class AioTcpServerThread implements Runnable {
 	public RequestProcessor requestProcessor = null;
-	public CountDownLatch latch; // 并发计数器
+	public static CountDownLatch latch; // 并发计数器
 	public AsynchronousServerSocketChannel channel;
 	protected AioTcpServerAcceptHandler acceptHandler = null;
 	
@@ -30,6 +32,7 @@ public class AioTcpServerThread implements Runnable {
         //此处，让现场在此阻塞，防止服务端执行完成后退出  
         //也可以使用while(true)+sleep   
         //生成环境就不需要担心这个问题，以为服务端是不会退出的  
+		//while (true) {
         latch = new CountDownLatch(1);  
         //用于接收客户端的连接  
         channel.accept(this,new AioTcpServerAcceptHandler(requestProcessor));  
@@ -38,5 +41,6 @@ public class AioTcpServerThread implements Runnable {
         } catch (InterruptedException e) {  
             e.printStackTrace();  
         }
+		//}
 	}
 }

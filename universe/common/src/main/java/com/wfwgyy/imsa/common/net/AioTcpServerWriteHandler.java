@@ -22,14 +22,17 @@ public class AioTcpServerWriteHandler implements CompletionHandler<Integer, Byte
         writeBuffer.put(req);  
         writeBuffer.flip();  
 		//如果没有发送完，就继续发送直到完成  
-        if (buffer.hasRemaining())  
+        if (buffer.hasRemaining()) {
             channel.write(buffer, buffer, this);  
-        else{  
+        }
+        System.out.println("$$$$$$$$$$$$ sent:" + (new String(req)) + "!");
+        AioTcpServerWriteThread.writeLatch.countDown();
+        /*else{  
             //创建新的Buffer  
             ByteBuffer readBuffer = ByteBuffer.allocate(1024);  
             //异步读  第三个参数为接收消息回调的业务Handler  
             channel.read(readBuffer, readBuffer, new AioTcpServerReadHandler(requestProcessor, channel));  
-        }
+        }*/
 	}
 
 	@Override

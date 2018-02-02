@@ -5,10 +5,14 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CountDownLatch;
 
 public class AioTcpServerReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 	public RequestProcessor requestProcessor = null;
 	private AsynchronousSocketChannel channel;
+	public static CountDownLatch readLatch;
+	
+	
 	public AioTcpServerReadHandler(RequestProcessor requestProcessor, AsynchronousSocketChannel channel) {
 		this.requestProcessor = requestProcessor;
 		this.channel = channel;
@@ -22,9 +26,11 @@ public class AioTcpServerReadHandler implements CompletionHandler<Integer, ByteB
         byte[] message = new byte[attachment.remaining()];  
         attachment.get(message);
         byte[] rawResp = requestProcessor.processRequest(channel, message);
-        if (rawResp != null) {
+        /*if (rawResp != null) {
         	doWrite(rawResp);
-        }
+        }*/
+        ByteBuffer buffer = ByteBuffer.allocate(1024);  
+        channel.read(buffer, buffer, new AioTcpServerReadHandler(requestProcessor, channel));
 	}
 
 	@Override

@@ -2,12 +2,16 @@ package com.wfwgyy.imsa.common.net;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.wfwgyy.imsa.common.AppConsts;
+import com.wfwgyy.imsa.common.Turple2;
 
 public class AioTcpServer implements RequestProcessor {
 	private static AioTcpServerThread aioTcpServerThread = null;
 	public volatile static long clientCount = 0;
+	public static Queue<Turple2<AsynchronousSocketChannel, String>> responseQueue = new ConcurrentLinkedQueue<>();
 	
 	public static synchronized void start() {
 		System.out.println("启动中...");

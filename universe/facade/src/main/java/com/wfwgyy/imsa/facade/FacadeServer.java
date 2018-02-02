@@ -23,6 +23,7 @@ import com.wfwgyy.imsa.common.jedis.JedisEngine;
 import com.wfwgyy.imsa.common.msg.ImsaMsgEngine;
 import com.wfwgyy.imsa.common.net.AioTcpServer;
 import com.wfwgyy.imsa.common.net.AioTcpServerThread;
+import com.wfwgyy.imsa.common.net.AioTcpServerWriteThread;
 
 /**
  * 整个系统入口，将监听所有外部系统发送的请求，将请求转化为系统消息，并发布到消息总线上去。同时接收消息总线消息，如果是HTML消息
@@ -47,6 +48,10 @@ public class FacadeServer extends AioTcpServer {
 		AioTcpServer server = new FacadeServer();
 		Thread thread = new Thread(new AioTcpServerThread(server::processRequest, AppConsts.FACADE_PORT));
 		thread.start();
+		
+		AioTcpServerWriteThread.requestProcessor = server::processRequest;
+		Thread writeThread = new Thread(new AioTcpServerWriteThread());
+		writeThread.start();
 	}
 
 	/**
@@ -78,16 +83,20 @@ public class FacadeServer extends AioTcpServer {
         }
 
         String rawRequest = null;
+        String[] urls = null;
         while (startPos>=0 && endPos > startPos) {
             rawRequest = requestBuffer.substring(startPos + AppConsts.MSG_BEGIN_TAG.length(), endPos);
+            publishImsaMsg(rawRequest, urls);
             System.out.println("######req:" + rawRequest + "!");
+            
+            AioTcpServer.responseQueue.add(new Turple2<>(channel, "响应：" + rawRequest + "!(" + System.currentTimeMillis() + ")"));
+            
             requestBuffer.delete(startPos, endPos + AppConsts.MSG_END_TAG.length());
             startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
             endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG, startPos + 1);
         }
-        
-        
-        String[] urls = null;
+        JedisEngine.set(AppConsts.ATS_REQUEST + channel.hashCode(), requestBuffer.toString());
+        /*
         String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, 
         		AppConsts.SERVICE_ID_NONE, expression, urls);
         System.out.println("#####Msg:" + msgStr + "!");
@@ -97,7 +106,12 @@ public class FacadeServer extends AioTcpServer {
         }catch(Exception e){  
             calrResult = "计算错误：" + e.getMessage();  
         }  
-		return calrResult.getBytes();
+		return calrResult.getBytes();*/
+        return null;
+	}
+	
+	private void publishImsaMsg(String request, String[] urls) {
+		
 	}
 	
 	/**
