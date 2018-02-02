@@ -11,16 +11,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientThread>, Runnable {
-	private AsynchronousSocketChannel clientChannel;  
+	public AsynchronousSocketChannel clientChannel;  
     private String host;  
     private int port;  
     public static CountDownLatch latch; 
     public static CountDownLatch writeLatch;
     public static CountDownLatch readLatch;
-    private static Queue<String> requestQueue = new ConcurrentLinkedQueue();
-    private static Queue<String> responseQueue = new ConcurrentLinkedQueue();
     
-    public AioTcpClientThread(String host, short port) {
+    public AioTcpClientThread(String host, int port) {
     	this.host = host;  
         this.port = port;  
         try {  
@@ -30,44 +28,32 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
             e.printStackTrace();  
         }
     }
-    
-    public static Queue<String> getResponseQueue() {
-    	return responseQueue;
-    }
-    
-    public static void addRequestToQueue(String msg) {
-    	requestQueue.add(msg);
-    	latch.countDown();
-    }
 
 	@Override
 	public void run() { 
         //发起异步连接操作，回调参数就是这个类本身，如果连接成功会回调completed方法  
         clientChannel.connect(new InetSocketAddress(host, port), this, this);
-        //thd.start();
-        while (true) {
-    		//创建CountDownLatch等待
-            latch = new CountDownLatch(1);
-            System.out.println("AioTcpClientThread.run 0:" + System.currentTimeMillis() + "!");
-	        try {
-	            latch.await();
-	        } catch (InterruptedException e1) {
-	            e1.printStackTrace();  
-	        }
-	        System.out.println("AioTcpClientThread.run 1:" + System.currentTimeMillis() + "!");
-	        sendRequestQueueMsg();
-	        readResponseQueueMsg();
+        latch = new CountDownLatch(1);
+        try {
+            latch.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();  
         }
-        /*try {  
+        try {  
             clientChannel.close();  
         } catch (IOException e) {  
             e.printStackTrace();  
-        }*/
+        }
 	}
 
 	@Override
 	public void completed(Void result, AioTcpClientThread attachment) {
+		AioTcpClient.channels.put(host + ":" + port, clientChannel);
 		System.out.println("客户端成功连接到服务器...");
+		Thread writeThread = new Thread(new AioTcpClientWriteThread());
+		writeThread.start();
+		Thread readThread = new Thread(new AioTcpClientReadThread());
+		readThread.start();
 	}
 
 	@Override
@@ -82,42 +68,7 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
         }
 	}
 	
-	public void sendRequestQueueMsg() {
-		String msg = null;
-		while ((msg = requestQueue.poll()) != null) {
-			writeLatch = new CountDownLatch(1);
-			sendMsg(msg);
-			try {
-				writeLatch.await();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	public void readResponseQueueMsg() {
-		System.out.println("readResponse " + System.currentTimeMillis() + "!");
-		readLatch = new CountDownLatch(1);
-		ByteBuffer readBuffer = ByteBuffer.allocate(1024);  
-        clientChannel.read(readBuffer,readBuffer,new AioTcpClientReadHandler(clientChannel));
-        System.out.println("rrqm1");
-		try {
-			readLatch.await(10, TimeUnit.MICROSECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("rrqm2");
 	}
-	
-	public void sendMsg(String msg){
-        byte[] req = msg.getBytes();  
-        ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);  
-        writeBuffer.put(req);  
-        writeBuffer.flip();
-        //异步写  
-        clientChannel.write(writeBuffer, writeBuffer,new AioTcpClientWriteHandler(clientChannel)); 
-    }
 
 }

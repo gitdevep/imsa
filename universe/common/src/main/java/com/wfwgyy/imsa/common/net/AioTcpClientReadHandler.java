@@ -21,7 +21,7 @@ public class AioTcpClientReadHandler implements CompletionHandler<Integer, ByteB
         byte[] bytes = new byte[buffer.remaining()];  
         buffer.get(bytes);  
         String body;
-        Queue<String> responseQueue = AioTcpClientThread.getResponseQueue();
+        Queue<String> responseQueue = AioTcpClient.responseQueue;
         try {  
             body = new String(bytes,"UTF-8");  
             System.out.println("@@@@@客户端收到结果:"+ body);

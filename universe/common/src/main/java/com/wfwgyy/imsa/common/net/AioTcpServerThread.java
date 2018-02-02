@@ -13,7 +13,7 @@ public class AioTcpServerThread implements Runnable {
 	public AsynchronousServerSocketChannel channel;
 	protected AioTcpServerAcceptHandler acceptHandler = null;
 	
-	public AioTcpServerThread(RequestProcessor requestProcessor, short port) {
+	public AioTcpServerThread(RequestProcessor requestProcessor, int port) {
 		this.requestProcessor = requestProcessor;
 		try {
 			channel = AsynchronousServerSocketChannel.open();

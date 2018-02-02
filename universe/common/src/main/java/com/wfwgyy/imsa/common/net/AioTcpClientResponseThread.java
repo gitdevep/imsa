@@ -8,7 +8,7 @@ public class AioTcpClientResponseThread implements Runnable {
 		Queue<String> responseQueue = null;
 		String resp = null;
 		while (true) {
-			responseQueue = AioTcpClientThread.getResponseQueue();
+			responseQueue = AioTcpClient.responseQueue;
 			resp = responseQueue.poll();
 			if (resp != null) {
 				System.out.println("######## \r\n" + resp + "\r\n#############\r\n###########\r\n");

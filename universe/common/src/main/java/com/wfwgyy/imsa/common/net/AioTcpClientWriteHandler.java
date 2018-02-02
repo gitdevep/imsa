@@ -18,10 +18,8 @@ public class AioTcpClientWriteHandler implements CompletionHandler<Integer, Byte
 		//完成全部数据的写入  
         if (buffer.hasRemaining()) {  
             clientChannel.write(buffer, buffer, this);  
-        } else {
-        	AioTcpClientThread.latch.countDown();
-        	AioTcpClientThread.writeLatch.countDown();
         }
+        AioTcpClientWriteThread.writeLatch.countDown();
 	}
 
 	@Override
