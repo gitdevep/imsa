@@ -21,8 +21,10 @@ public class AioTcpServerReadHandler implements CompletionHandler<Integer, ByteB
         //根据  
         byte[] message = new byte[attachment.remaining()];  
         attachment.get(message);
-        byte[] rawResp = requestProcessor.processRequest(message);
-        doWrite(rawResp);
+        byte[] rawResp = requestProcessor.processRequest(channel, message);
+        if (rawResp != null) {
+        	doWrite(rawResp);
+        }
 	}
 
 	@Override

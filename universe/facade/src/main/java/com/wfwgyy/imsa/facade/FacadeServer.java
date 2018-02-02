@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -53,7 +54,8 @@ public class FacadeServer extends AioTcpServer {
 	 * @author 闫涛 2018.01.30 v0.0.1
 	 */
 	@Override
-	public byte[] processRequest(byte[] req) {
+	public byte[] processRequest(AsynchronousSocketChannel channel, byte[] req) {
+		StringBuilder requestBuffer = new StringBuilder(JedisEngine.get(AppConsts.ATS_REQUEST + channel.hashCode()).orElse(""));
 		// TODO Auto-generated method stub
 		String expression = "";
 		try {
@@ -63,9 +65,31 @@ public class FacadeServer extends AioTcpServer {
 			e1.printStackTrace();
 		}  
         System.out.println("服务器收到消息: " + expression);
+        requestBuffer.append(expression);
+        
+        // 从requestBuffer中解析出完整的请求
+        int startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
+        if (startPos < 0) {
+        	return null;
+        }
+        int endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG);
+        if (endPos <= startPos) {
+        	return null;
+        }
+
+        String rawRequest = null;
+        while (startPos>=0 && endPos > startPos) {
+            rawRequest = requestBuffer.substring(startPos + AppConsts.MSG_BEGIN_TAG.length(), endPos);
+            System.out.println("######req:" + rawRequest + "!");
+            requestBuffer.delete(startPos, endPos + AppConsts.MSG_END_TAG.length());
+            startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
+            endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG, startPos + 1);
+        }
+        
+        
         String[] urls = null;
         String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, 
-        		AppConsts.SERVICE_ID_NONE, req.toString(), urls);
+        		AppConsts.SERVICE_ID_NONE, expression, urls);
         System.out.println("#####Msg:" + msgStr + "!");
         String calrResult = null;
         try{  

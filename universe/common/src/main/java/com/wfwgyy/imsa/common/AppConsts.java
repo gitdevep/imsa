@@ -11,6 +11,9 @@ public class AppConsts {
 	public final static String SERVICE_ID = "service_id";
 	public final static String MSG_DATA = "msg_data";
 	public final static String MSG_URLS = "msg_urls";
+	public final static String ATS_REQUEST = "request_";
+	public final static String MSG_BEGIN_TAG = "<###IMSA###>";
+	public final static String MSG_END_TAG = "<&&&IMSA&&&>";
 	// 消息类型
 	public final static int MT_HTTP_GET_REQ = 1; // HTTP GET请求
 	// 消息版本

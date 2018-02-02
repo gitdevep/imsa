@@ -1,6 +1,7 @@
 package com.wfwgyy.imsa.common.net;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.AsynchronousSocketChannel;
 
 import com.wfwgyy.imsa.common.AppConsts;
 
@@ -19,7 +20,7 @@ public class AioTcpServer implements RequestProcessor {
 	}
 
 	@Override
-	public byte[] processRequest(byte[] req) {
+	public byte[] processRequest(AsynchronousSocketChannel channel, byte[] req) {
 		// TODO Auto-generated method stub
 		String expression = "";
 		try {
