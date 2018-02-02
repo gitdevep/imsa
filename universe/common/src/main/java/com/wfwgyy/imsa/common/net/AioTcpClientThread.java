@@ -14,9 +14,7 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
 	public AsynchronousSocketChannel clientChannel;  
     private String host;  
     private int port;  
-    public static CountDownLatch latch; 
-    public static CountDownLatch writeLatch;
-    public static CountDownLatch readLatch;
+    public CountDownLatch latch;
     
     public AioTcpClientThread(String host, int port) {
     	this.host = host;  
@@ -52,7 +50,7 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
 		System.out.println("客户端成功连接到服务器...");
 		Thread writeThread = new Thread(new AioTcpClientWriteThread());
 		writeThread.start();
-		Thread readThread = new Thread(new AioTcpClientReadThread());
+		Thread readThread = new Thread(new AioTcpClientReadThread(clientChannel));
 		readThread.start();
 	}
 
@@ -67,8 +65,4 @@ public class AioTcpClientThread implements CompletionHandler<Void, AioTcpClientT
             e.printStackTrace();  
         }
 	}
-	
-	public void readResponseQueueMsg() {
-	}
-
 }

@@ -8,13 +8,12 @@ import java.util.concurrent.CountDownLatch;
 import com.wfwgyy.imsa.common.Turple2;
 
 public class AioTcpClientWriteThread implements Runnable {
-	public static CountDownLatch writeLatch;
+	public CountDownLatch writeLatch;
 
 	@Override
 	public void run() {
 		Queue<Turple2<AsynchronousSocketChannel, String>> requestQueue = AioTcpClient.requestQueue;
 		Turple2<AsynchronousSocketChannel, String> item = null;
-		String msg = null;
 		while (true) {
 			while ((item = requestQueue.poll()) != null) {
 				writeLatch = new CountDownLatch(1);
@@ -43,7 +42,7 @@ public class AioTcpClientWriteThread implements Runnable {
         writeBuffer.put(req);  
         writeBuffer.flip();
         //异步写  
-        item.v1.write(writeBuffer, writeBuffer,new AioTcpClientWriteHandler(item.v1)); 
+        item.v1.write(writeBuffer, writeBuffer,new AioTcpClientWriteHandler(item.v1, writeLatch)); 
     }
 
 }

@@ -9,10 +9,12 @@ import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 
 public class AioTcpClientReadHandler implements CompletionHandler<Integer, ByteBuffer> {
+	private CountDownLatch readLatch;
 	private AsynchronousSocketChannel clientChannel;
     
-    public AioTcpClientReadHandler(AsynchronousSocketChannel clientChannel) {  
+    public AioTcpClientReadHandler(AsynchronousSocketChannel clientChannel, CountDownLatch readLatch) {  
         this.clientChannel = clientChannel;
+        this.readLatch = readLatch;
     }
     
 	@Override
@@ -30,17 +32,15 @@ public class AioTcpClientReadHandler implements CompletionHandler<Integer, ByteB
         	System.out.println("AioTcpClientReadHandler.completed 4");
             e.printStackTrace();  
         }
-        AioTcpClientThread.latch.countDown();
-        AioTcpClientThread.readLatch.countDown();
+        readLatch.countDown();
 	}
 
 	@Override
 	public void failed(Throwable exc, ByteBuffer attachment) {
 		System.err.println("数据读取失败...");  
         try {  
-            clientChannel.close();  
-            AioTcpClientThread.latch.countDown();
-            AioTcpClientThread.readLatch.countDown();
+            clientChannel.close();
+            readLatch.countDown();
         } catch (IOException e) {  
         }
 	}

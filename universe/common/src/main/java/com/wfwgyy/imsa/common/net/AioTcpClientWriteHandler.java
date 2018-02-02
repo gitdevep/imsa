@@ -7,10 +7,12 @@ import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CountDownLatch;
 
 public class AioTcpClientWriteHandler implements CompletionHandler<Integer, ByteBuffer> {
+	private CountDownLatch writeLatch;
 	private AsynchronousSocketChannel clientChannel;  
     
-    public AioTcpClientWriteHandler(AsynchronousSocketChannel clientChannel) {
+    public AioTcpClientWriteHandler(AsynchronousSocketChannel clientChannel, CountDownLatch writeLatch) {
         this.clientChannel = clientChannel;
+        this.writeLatch = writeLatch;
     }
     
 	@Override
@@ -19,16 +21,15 @@ public class AioTcpClientWriteHandler implements CompletionHandler<Integer, Byte
         if (buffer.hasRemaining()) {  
             clientChannel.write(buffer, buffer, this);  
         }
-        AioTcpClientWriteThread.writeLatch.countDown();
+        writeLatch.countDown();
 	}
 
 	@Override
 	public void failed(Throwable exc, ByteBuffer attachment) {
 		System.err.println("数据发送失败...");  
         try {  
-            clientChannel.close();  
-            AioTcpClientThread.latch.countDown();
-        	AioTcpClientThread.writeLatch.countDown();
+            clientChannel.close();
+        	writeLatch.countDown();
         } catch (IOException e) {  
         }
 	}
