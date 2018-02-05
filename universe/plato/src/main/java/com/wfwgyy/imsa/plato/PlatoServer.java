@@ -1,6 +1,7 @@
 package com.wfwgyy.imsa.plato;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
@@ -28,7 +29,7 @@ public class PlatoServer extends AioTcpServer {
 	}
 
 	@Override
-	public byte[] processRequest(byte[] req) {
+	public byte[] processRequest(AsynchronousSocketChannel channel, byte[] req) {
 		// TODO Auto-generated method stub
 		String expression = "";
 		try {
