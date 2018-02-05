@@ -2,7 +2,9 @@ package com.wfwgyy.imsa.common.net;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.wfwgyy.imsa.common.AppConsts;
@@ -11,6 +13,7 @@ import com.wfwgyy.imsa.common.Turple2;
 public class AioTcpServer implements RequestProcessor {
 	private static AioTcpServerThread aioTcpServerThread = null;
 	public volatile static long clientCount = 0;
+	public static Map<Long, AsynchronousSocketChannel> clients = new ConcurrentHashMap<>(); // 每个消息对应的外部系统的连接
 	public static Queue<Turple2<AsynchronousSocketChannel, String>> responseQueue = new ConcurrentLinkedQueue<>();
 	
 	public static synchronized void start() {

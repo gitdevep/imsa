@@ -2,7 +2,7 @@ package com.wfwgyy.imsa.common;
 
 public class AppConsts {
 	// 服务器配置
-	public final static String SERVER_IP = "192.168.11.15";
+	public final static String SERVER_IP = "192.168.0.101";
 	// 系统消息所需属性
 	public final static String MSG_ID = "msg_id";
 	public final static String MSG_TYPE = "msg_type";
