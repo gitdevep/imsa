@@ -75,33 +75,35 @@ public class AioTcpServer implements RequestProcessor {
 	 * @return
 	 */
 	public long publishImsaMsg(String request, String[] urls) {
+		long msgId = 0;
 		return 0;
 	}
 	
 	public void processImsaRequests(AsynchronousSocketChannel channel, StringBuilder requestBuffer) {
 		int msgType = AppConsts.MT_NONE;
 		msgType = getImsaRequestType(requestBuffer);
-		while (msgType != AppConsts.MT_NONE) {
+		boolean isComplete = true;
+		while (msgType != AppConsts.MT_NONE && isComplete) {
 			switch (msgType) {
 			case AppConsts.MT_IMSA_MSG:
 				break;
 			case AppConsts.MT_HTTP_GET_REQ:
-				getHttpGetRequest(channel, requestBuffer);
+				isComplete = getHttpGetRequest(channel, requestBuffer);
 				break;
 			}
 			msgType = getImsaRequestType(requestBuffer);
 		}
 	}
 	
-	protected void getHttpGetRequest(AsynchronousSocketChannel channel, StringBuilder requestBuffer) {        
+	protected boolean getHttpGetRequest(AsynchronousSocketChannel channel, StringBuilder requestBuffer) {        
         // 从requestBuffer中解析出完整的请求
         int startPos = requestBuffer.indexOf(AppConsts.MSG_HTTP_GET_BEGINE);
         if (startPos < 0) {
-        	return ;
+        	return false;
         }
         int endPos = requestBuffer.indexOf(AppConsts.MSG_HTTP_GET_END);
         if (endPos <= startPos) {
-        	return ;
+        	return false;
         }
 
         String rawRequest = null;
@@ -115,6 +117,7 @@ public class AioTcpServer implements RequestProcessor {
             //startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
             //endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG, startPos + 1);
         }
+        return true;
 	}
 	
 	/**

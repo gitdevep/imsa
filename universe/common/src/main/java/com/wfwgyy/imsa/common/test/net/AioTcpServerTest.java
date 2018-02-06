@@ -68,5 +68,30 @@ public class AioTcpServerTest {
 		int rst = sc.nextInt();
 		Assert.assertTrue("解析正常HTTP GET请求用例", 1==rst);
 	}
+	
+	@Test
+	public void testProcessImsaRequests2() {
+		StringBuilder requestBuffer = new StringBuilder("123456");
+		requestBuffer.append("GET /abc/index/a?b=1&c=2 HTTP/1.1\r\n");
+		requestBuffer.append("Host: 192.168.0.101:8088\r\n");
+		requestBuffer.append("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3236.0 Safari/537.36\r\n");
+		requestBuffer.append("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\n");
+		requestBuffer.append("Accept-Encoding: gzip, deflate\r\n");
+		requestBuffer.append("Accept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n");
+		requestBuffer.append("789abc");
+		AsynchronousSocketChannel channel = null;
+		try {
+			channel = AsynchronousSocketChannel.open();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		AioTcpServer aio = AioTcpServer.getTestInstance();
+		aio.processImsaRequests(channel, requestBuffer);
+		System.out.println("如果没有看到HTTP GET请求请按1");
+		Scanner sc = new Scanner(System.in);
+		int rst = sc.nextInt();
+		Assert.assertTrue("解析正常HTTP GET请求用例", 1==rst);
+	}
 
 }
