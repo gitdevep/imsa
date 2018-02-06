@@ -74,37 +74,8 @@ public class FacadeServer extends AioTcpServer {
 			e1.printStackTrace();
 		}  
         System.out.println("服务器收到消息: " + expression);
-        requestBuffer.append(expression);
-        
-        String request = getFullImsaRequest(requestBuffer).orElseGet(()->"");
-        if (!request.equals("")) {
-        	System.out.println("获取到IMSA信息");
-        }
-        
-        // 从requestBuffer中解析出完整的请求
-        int startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
-        if (startPos < 0) {
-        	return null;
-        }
-        int endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG);
-        if (endPos <= startPos) {
-        	return null;
-        }
-
-        String rawRequest = null;
-        String[] urls = null;
-        while (startPos>=0 && endPos > startPos) {
-            rawRequest = requestBuffer.substring(startPos + AppConsts.MSG_BEGIN_TAG.length(), endPos);
-            long msgId = publishImsaMsg(rawRequest, urls);
-            AioTcpServer.clients.put(msgId, channel);
-            System.out.println("######req:" + rawRequest + "!");
-            
-            AioTcpServer.responseQueue.add(new Turple2<>(channel, "响应：" + rawRequest + "!(" + System.currentTimeMillis() + ")"));
-            
-            requestBuffer.delete(startPos, endPos + AppConsts.MSG_END_TAG.length());
-            startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
-            endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG, startPos + 1);
-        }
+        requestBuffer.append(expression);        
+        processImsaRequests(channel, requestBuffer);
         JedisEngine.set(AppConsts.ATS_REQUEST + channel.hashCode(), requestBuffer.toString());
         /*
         String msgStr = ImsaMsgEngine.createMsg(AppConsts.MT_HTTP_GET_REQ, AppConsts.MT_MSG_V1, 

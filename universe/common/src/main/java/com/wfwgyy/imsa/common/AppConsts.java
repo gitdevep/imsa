@@ -15,6 +15,7 @@ public class AppConsts {
 	public final static String MSG_BEGIN_TAG = "<###IMSA###>";
 	public final static String MSG_END_TAG = "<&&&IMSA&&&>";
 	public final static String MSG_HTTP_GET_BEGINE = "GET /";
+	public final static String MSG_HTTP_GET_END = "\r\n\r\n";
 	public final static String MSG_HTTP_POST_BEGINE = "POST /";
 	// 消息类型
 	public final static int MT_NONE = 0; // 没有消息内容

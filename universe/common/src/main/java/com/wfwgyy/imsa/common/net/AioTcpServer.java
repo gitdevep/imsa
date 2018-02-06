@@ -78,12 +78,43 @@ public class AioTcpServer implements RequestProcessor {
 		return 0;
 	}
 	
-	public Optional<String> getFullImsaRequest(StringBuilder requestBuffer) {
-		return Optional.ofNullable("");
+	public void processImsaRequests(AsynchronousSocketChannel channel, StringBuilder requestBuffer) {
+		int msgType = AppConsts.MT_NONE;
+		msgType = getImsaRequestType(requestBuffer);
+		while (msgType != AppConsts.MT_NONE) {
+			switch (msgType) {
+			case AppConsts.MT_IMSA_MSG:
+				break;
+			case AppConsts.MT_HTTP_GET_REQ:
+				getHttpGetRequest(channel, requestBuffer);
+				break;
+			}
+			msgType = getImsaRequestType(requestBuffer);
+		}
 	}
 	
-	protected Optional<String> getHttpGetRequest(StringBuilder requestBuffer) {
-		return Optional.ofNullable("");
+	protected void getHttpGetRequest(AsynchronousSocketChannel channel, StringBuilder requestBuffer) {        
+        // 从requestBuffer中解析出完整的请求
+        int startPos = requestBuffer.indexOf(AppConsts.MSG_HTTP_GET_BEGINE);
+        if (startPos < 0) {
+        	return ;
+        }
+        int endPos = requestBuffer.indexOf(AppConsts.MSG_HTTP_GET_END);
+        if (endPos <= startPos) {
+        	return ;
+        }
+
+        String rawRequest = null;
+        String[] urls = null;
+        if (startPos>=0 && endPos > startPos) {
+            rawRequest = requestBuffer.substring(startPos, endPos);
+            long msgId = publishImsaMsg(rawRequest, urls);
+            AioTcpServer.clients.put(msgId, channel);
+            requestBuffer.delete(startPos, endPos + AppConsts.MSG_END_TAG.length());
+            System.out.println("发送消息：" + rawRequest + "!");
+            //startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
+            //endPos = requestBuffer.indexOf(AppConsts.MSG_END_TAG, startPos + 1);
+        }
 	}
 	
 	/**
