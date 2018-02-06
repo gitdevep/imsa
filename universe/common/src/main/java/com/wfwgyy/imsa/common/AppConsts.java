@@ -14,8 +14,13 @@ public class AppConsts {
 	public final static String ATS_REQUEST = "request_";
 	public final static String MSG_BEGIN_TAG = "<###IMSA###>";
 	public final static String MSG_END_TAG = "<&&&IMSA&&&>";
+	public final static String MSG_HTTP_GET_BEGINE = "GET /";
+	public final static String MSG_HTTP_POST_BEGINE = "POST /";
 	// 消息类型
+	public final static int MT_NONE = 0; // 没有消息内容
 	public final static int MT_HTTP_GET_REQ = 1; // HTTP GET请求
+	public final static int MT_HTTP_POST_REQ = 2;
+	public final static int MT_IMSA_MSG = 3;
 	// 消息版本
 	public final static int MT_MSG_V1 = 1;
 	public final static int MT_MSG_V2 = 2;

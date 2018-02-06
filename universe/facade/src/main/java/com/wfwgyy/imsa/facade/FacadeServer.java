@@ -35,6 +35,10 @@ public class FacadeServer extends AioTcpServer {
 	private static AioTcpServerThread aioTcpServerThread = null;
 	public volatile static long clientCount = 0;
 	
+	protected FacadeServer() {
+		super();
+	}
+	
 	/**
 	 * 启动门户服务器Facade实例线程，第一个参数为函数式接口，为本类的processRequest方法，用于处理请求
 	 * 并产生响应
@@ -72,6 +76,11 @@ public class FacadeServer extends AioTcpServer {
         System.out.println("服务器收到消息: " + expression);
         requestBuffer.append(expression);
         
+        String request = getFullImsaRequest(requestBuffer).orElseGet(()->"");
+        if (!request.equals("")) {
+        	System.out.println("获取到IMSA信息");
+        }
+        
         // 从requestBuffer中解析出完整的请求
         int startPos = requestBuffer.indexOf(AppConsts.MSG_BEGIN_TAG);
         if (startPos < 0) {
@@ -86,7 +95,8 @@ public class FacadeServer extends AioTcpServer {
         String[] urls = null;
         while (startPos>=0 && endPos > startPos) {
             rawRequest = requestBuffer.substring(startPos + AppConsts.MSG_BEGIN_TAG.length(), endPos);
-            publishImsaMsg(rawRequest, urls);
+            long msgId = publishImsaMsg(rawRequest, urls);
+            AioTcpServer.clients.put(msgId, channel);
             System.out.println("######req:" + rawRequest + "!");
             
             AioTcpServer.responseQueue.add(new Turple2<>(channel, "响应：" + rawRequest + "!(" + System.currentTimeMillis() + ")"));
@@ -101,17 +111,13 @@ public class FacadeServer extends AioTcpServer {
         		AppConsts.SERVICE_ID_NONE, expression, urls);
         System.out.println("#####Msg:" + msgStr + "!");
         String calrResult = null;
-        try{  
+        try{
             calrResult = prepareResponse();
         }catch(Exception e){  
             calrResult = "计算错误：" + e.getMessage();  
         }  
 		return calrResult.getBytes();*/
         return null;
-	}
-	
-	private void publishImsaMsg(String request, String[] urls) {
-		
 	}
 	
 	/**
